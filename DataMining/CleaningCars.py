@@ -16,7 +16,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 def remove_columns(df):
     
     """Removes columns we agreed were useless"""
-    columns = ["Unnamed: 0", "id", "image_url", "VIN", "region_url", "id", "model", "size"]
+    columns = ["Unnamed: 0", "id", "image_url", "VIN", "region_url", "id", "model", "size","url"]
     df.drop(columns, axis=1, inplace=True)
     return(df)
 
