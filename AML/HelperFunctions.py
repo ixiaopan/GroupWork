@@ -160,6 +160,45 @@ def cleanEvents(df):
     
     return df
 
+
+def add_event_eve(df):
+    #adds the eve of every event in the event_name_2 collumn
+    #and the type of event in the type_of_event_2 column
+    
+    event_names=df['event_name_1'].unique().tolist()[1:]
+    
+    for i in range(df.shape[0]):
+        if (df["event_name_1"][i] in event_names) and (df["event_name_2"][i-1] not in event_names):
+            df['event_name_2'][i-1]= df["event_name_1"][i] + " Eve"
+            df['event_type_2'][i-1]= df['event_type_1'][i]
+                
+    return df
+
+
+
+def important_events_onehotenc(df):
+    # A function for one-hot-encoding the events that may be important
+    # SuperBowl, LaborDay, Easter Eve, Mother's day Eve, SuperBowl Eve, 
+    # PresidentsDay Eve, Columbus day Eve, Thanksgiving and Lentweek2 Eve
+    drop_events=['event_Chanukah End', 'event_Christmas','event_Cinco De Mayo', 'event_ColumbusDay', 'event_Easter',
+                 'event_Eid al-Fitr', 'event_EidAlAdha', "event_Father's day",'event_Halloween', 'event_IndependenceDay',
+                 'event_LentStart', 'event_LentWeek2', 'event_MartinLutherKingDay','event_MemorialDay', "event_Mother's day", 
+                 'event_NBAFinalsEnd', 'event_NBAFinalsStart', 'event_NewYear', 'event_OrthodoxChristmas','event_OrthodoxEaster',
+                 'event_Pesach End', 'event_PresidentsDay','event_Purim End', 'event_Ramadan starts', 'event_StPatricksDay',
+                 'event_Thanksgiving', 'event_ValentinesDay','event_VeteransDay', 'event_Chanukah End Eve', 'event_Christmas Eve',
+                 'event_Cinco De Mayo', 'event_Cinco De Mayo Eve', 'event_Easter','event_Eid al-Fitr Eve', 'event_EidAlAdha Eve',
+                 "event_Father's day", "event_Father's day Eve", 'event_Halloween Eve','event_IndependenceDay Eve', 
+                 'event_LaborDay Eve','event_LentStart Eve','event_MartinLutherKingDay Eve', 'event_MemorialDay Eve', 
+                 'event_NBAFinalsEnd Eve','event_NBAFinalsStart Eve', 'event_NewYear Eve','event_OrthodoxChristmas Eve', 
+                 'event_OrthodoxEaster','event_OrthodoxEaster Eve', 'event_Pesach End Eve', 'event_Purim End Eve',
+                 'event_Ramadan starts Eve', 'event_StPatricksDay Eve','event_ValentinesDay Eve', 'event_VeteransDay Eve']
+    df=pd.get_dummies(data=df,prefix="event",columns=["event_name_1","event_name_2"])
+    df.drop(columns=drop_events,axis=1,inplace=True)
+    
+    return df
+    
+
+
 def encodeItemAndStoreData(df):
     df.drop(['item_id'], axis=1, inplace=True)
 
