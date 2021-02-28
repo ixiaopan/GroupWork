@@ -1,0 +1,241 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+used_car <- read.csv("C:/Semester 2 university of southampton/COMP 6237 Data Mining/vehicles.csv",header = TRUE)
+
+#Checking data type
+str(used_car)
+library(dplyr)
+# Get rid of variables (image url, VIM, region URL, unnamed, id, url, model, size -seem similar average price)
+used_car_clean <-used_car%>% select(region,price,year,manufacturer,condition,
+                                    cylinders,fuel,odometer,title_status,transmission,
+                                    drive,type,paint_color,state,posting_date)
+str(used_car_clean)
+
+#one hot encode (manufacturer, condition, type, cylinders, fuel, title status, transmission, drive, paint car)
+used_car_clean$manufacturer <- as.factor(used_car_clean$manufacturer)
+used_car_clean$condition <- as.factor(used_car_clean$condition)
+used_car_clean$type <- as.factor(used_car_clean$type)
+used_car_clean$cylinders <- as.factor(used_car_clean$cylinders)
+used_car_clean$fuel <- as.factor(used_car_clean$fuel)
+used_car_clean$title_status <- as.factor(used_car_clean$title_status)
+used_car_clean$transmission <- as.factor(used_car_clean$transmission)
+used_car_clean$drive <- as.factor(used_car_clean$drive)
+used_car_clean$paint_color <- as.factor(used_car_clean$paint_color)
+str(used_car_clean)
+summary(used_car_clean)
+
+# extract year and month post separately
+used_car_clean$posting_year <- substring(used_car_clean$posting_date,1,4)
+used_car_clean$posting_month <- substring(used_car_clean$posting_date,6,7)
+summary(used_car_clean)
+# get rid of posting date
+used_car_clean <-used_car_clean%>% select(region,price,year,manufacturer,condition,
+                                          cylinders,fuel,odometer,title_status,transmission,
+                                          drive,type,paint_color,state,posting_year,posting_month)
+str(used_car_clean)
+
+# Converting posting year and posting month to num
+used_car_clean$posting_month <- as.numeric(used_car_clean$posting_month)
+used_car_clean$posting_year <- as.numeric(used_car_clean$posting_year)
+summary(used_car_clean)
+
+# Handling Price variable (get rid of missing value cars over 600,000)
+summary(used_car_clean$price)
+summary(is.na(used_car_clean$price))
+# There is no missing data
+# get rid of car over 600,000
+used_car_clean_new <- used_car_clean[(used_car_clean$price <= 600000),]
+summary(used_car_clean_new)
+# remove price <= 600000 -> 458158
+# Visualising each variable
+library(ggplot2)
+
+# manufacturer
+# plot all manufacturers included NAN
+plot_manufacturer <- ggplot(used_car_clean_new,aes(x = manufacturer, fill = manufacturer)) + geom_bar()
+plot_manufacturer
+summary(is.na(used_car_clean_new$manufacturer))
+summary(used_car_clean_new$manufacturer)
+# Drop row that manufacturer = ""
+used_car_clean_new_drop_manu <- used_car_clean_new[!(used_car_clean_new$manufacturer == ""),]
+summary(used_car_clean_new_drop_manu$manufacturer)
+plot_manufacturer_1 <- ggplot(used_car_clean_new_drop_manu,aes(x = manufacturer, fill = manufacturer)) + geom_bar()
+plot_manufacturer_1
+# Drop Manufacturer -> 439944
+
+
+
+# Consider variable condition
+summary(used_car_clean_new_drop_manu$condition)
+plot_condition <- ggplot(used_car_clean_new_drop_manu,aes(x = condition, fill = condition)) + geom_bar()
+plot_condition
+# Drop row that condition = ""
+used_car_clean_new_drop_cond <- used_car_clean_new_drop_manu[!(used_car_clean_new_drop_manu$condition == ""),]
+summary(used_car_clean_new_drop_cond$condition)
+plot_condition_1 <- ggplot(used_car_clean_new_drop_cond,aes(x = condition, fill = condition)) + geom_bar()
+plot_condition_1
+# Drop condition -> 254833
+
+
+
+# Considering variable type
+summary(used_car_clean_new_drop_cond$type)
+plot_type <- ggplot(used_car_clean_new_drop_cond,aes(x = type, fill = type)) + geom_bar()
+plot_type
+# Drop row that type = "" | "other"
+used_car_clean_new_drop_type <- used_car_clean_new_drop_cond[!(used_car_clean_new_drop_cond$type == "" ),]
+# -> remain 218818
+used_car_clean_new_drop_type <- used_car_clean_new_drop_type[!(used_car_clean_new_drop_type$type == "other" ),]
+# -> remain 206037
+summary(used_car_clean_new_drop_type$type)
+plot_type_1 <- ggplot(used_car_clean_new_drop_type,aes(x = type, fill = type)) + geom_bar()
+plot_type_1
+# Drop type => remain = 206037
+
+# Considering variable cylinders
+summary(used_car_clean_new_drop_type$cylinders)
+plot_cylinders <- ggplot(used_car_clean_new_drop_type,aes(x = cylinders, fill = cylinders)) + geom_bar()
+plot_cylinders
+# Drop row that cylinder = "" | "other"
+used_car_clean_new_drop_cylinders <- used_car_clean_new_drop_type[!(used_car_clean_new_drop_type$cylinders == "" ),]
+# -> remain 170149
+used_car_clean_new_drop_cylinders <- used_car_clean_new_drop_cylinders[!(used_car_clean_new_drop_cylinders$cylinders == "other" ),]
+# -> remain 169704
+summary(used_car_clean_new_drop_cylinders$cylinders)
+plot_cylinders_1 <- ggplot(used_car_clean_new_drop_cylinders,aes(x = cylinders, fill = cylinders)) + geom_bar()
+plot_cylinders_1
+# Considering grouping the cylinder -> looking at mean of prices
+# considering price and cylinder
+price_cylinder <- ggplot(data = used_car_clean_new_drop_cylinders,aes(x= cylinders, y = price, color = cylinders)) + geom_boxplot()+ theme_classic()
+price_cylinder
+
+# Summarize price by levels of a cylinder variable
+by(used_car_clean_new_drop_cylinders$price, used_car_clean_new_drop_cylinders$cylinders, summary)
+# According to the result -> hard to group it together -> group only one group
+
+
+# Considering variable fuel
+summary(used_car_clean_new_drop_cylinders$fuel)
+plot_fuel <- ggplot(used_car_clean_new_drop_cylinders,aes(x = fuel, fill = fuel)) + geom_bar()
+plot_fuel
+# Drop row that fuel = "other"
+used_car_clean_new_drop_fuel <- used_car_clean_new_drop_cylinders[!(used_car_clean_new_drop_cylinders$fuel == "other" ),]
+summary(used_car_clean_new_drop_fuel$fuel)
+plot_fuel_1 <- ggplot(used_car_clean_new_drop_fuel,aes(x = fuel, fill = fuel)) + geom_bar()
+plot_fuel_1
+# Drop fuel => remain = 166365
+# considering price and fuel
+price_fuel <- ggplot(data = used_car_clean_new_drop_fuel,aes(x= fuel, y = price, color = fuel)) + geom_boxplot()+ theme_classic()
+price_fuel
+# Summarize price by levels of a fuel variable
+by(used_car_clean_new_drop_fuel$price, used_car_clean_new_drop_fuel$fuel, summary)
+# According to the result -> hard to group it together -> group only one group
+
+
+
+
+# Considering variable title_status
+summary(used_car_clean_new_drop_fuel$title_status)
+plot_title_status <- ggplot(used_car_clean_new_drop_fuel,aes(x = title_status, fill = title_status)) + geom_bar()
+plot_title_status
+# Drop row that title status = missing
+used_car_clean_new_drop_title_status<-used_car_clean_new_drop_fuel[!(used_car_clean_new_drop_fuel$title_status == "missing" ),]
+plot_title_status_1 <- ggplot(used_car_clean_new_drop_title_status,aes(x = title_status, fill = title_status)) + geom_bar()
+plot_title_status_1
+# Drop title_status => remain = 166140
+
+# considering price and title_status
+price_title_status <- ggplot(data = used_car_clean_new_drop_title_status,aes(x= title_status, y = price, color = title_status)) + geom_boxplot()+ theme_classic()
+price_fuel
+# Summarize price by levels of a title_status variable
+by(used_car_clean_new_drop_title_status$price, used_car_clean_new_drop_title_status$title_status, summary)
+# According to the result -> hard to group it together -> group only one group
+
+
+
+# Considering variable transmission
+summary(used_car_clean_new_drop_title_status$transmission)
+plot_transmission <- ggplot(used_car_clean_new_drop_title_status,aes(x = transmission, fill = transmission)) + geom_bar()
+plot_transmission
+# Drop row that transmission = "" | "other"
+used_car_clean_new_drop_transmission <- used_car_clean_new_drop_title_status[!(used_car_clean_new_drop_title_status$transmission == "" ),]
+# -> remain 166057
+used_car_clean_new_drop_transmission <- used_car_clean_new_drop_transmission[!(used_car_clean_new_drop_transmission$transmission == "other" ),]
+# -> remain 166140
+summary(used_car_clean_new_drop_transmission$transmission)
+plot_transmission_1 <- ggplot(used_car_clean_new_drop_transmission,aes(x = transmission, fill = transmission)) + geom_bar()
+plot_transmission_1
+# Drop transmission => remain = 166140
+
+# considering price and transmission
+price_transmission <- ggplot(data = used_car_clean_new_drop_transmission,aes(x= transmission, y = price, color = transmission)) + geom_boxplot()+ theme_classic()
+price_transmission
+# Summarize price by levels of a transmission variable
+by(used_car_clean_new_drop_transmission$price, used_car_clean_new_drop_transmission$transmission, summary)
+
+
+# Considering variable drive
+summary(used_car_clean_new_drop_transmission$drive)
+plot_drive <- ggplot(used_car_clean_new_drop_transmission,aes(x = drive, fill = drive)) + geom_bar()
+plot_drive
+# Drop row that drive = ""
+used_car_clean_new_drop_drive <- used_car_clean_new_drop_transmission[!(used_car_clean_new_drop_transmission$drive == "" ),]
+summary(used_car_clean_new_drop_drive$drive)
+plot_drive_1 <- ggplot(used_car_clean_new_drop_drive,aes(x = drive, fill = drive)) + geom_bar()
+plot_drive_1
+# Drop drive => remain = 140031
+
+# considering price and drive
+price_drive <- ggplot(data = used_car_clean_new_drop_drive,aes(x= drive, y = price, color = drive)) + geom_boxplot()+ theme_classic()
+price_drive
+# Summarize price by levels of a transmission variable
+by(used_car_clean_new_drop_drive$price, used_car_clean_new_drop_drive$drive, summary)
+
+
+# Considering variable paint color
+summary(used_car_clean_new_drop_drive$paint_color)
+plot_paint_color <- ggplot(used_car_clean_new_drop_drive,aes(x = paint_color)) + geom_bar(aes(fill = paint_color))
+plot_paint_color_add <- plot_paint_color +scale_fill_manual( values = c( "grey", "black", "dodgerblue4","sienna4", "slateblue", "green4",
+                                                                         "gray45","orangered1", "darkorchid1", "indianred4",
+                                                                         "ivory2", "lavenderblush1",  "gold2")) + theme_bw()
+
+plot_paint_color_add
+# Drop row that paint_color = ""
+used_car_clean_new_drop_paint_color <- used_car_clean_new_drop_drive[!(used_car_clean_new_drop_drive$paint_color == "" ),]
+summary(used_car_clean_new_drop_paint_color$paint_color)
+plot_paint_color_1 <- ggplot(used_car_clean_new_drop_paint_color,aes(x = paint_color)) + geom_bar(aes(fill = paint_color))
+plot_paint_color_add_1 <- plot_paint_color_1 +scale_fill_manual( values = c( "black", "dodgerblue4","sienna4", "slateblue", "green4",
+                                                                             "gray45","orangered1", "darkorchid1", "indianred4",
+                                                                             "ivory2", "lavenderblush1",  "gold2","grey")) + theme_bw()
+
+plot_paint_color_add_1
+# Drop drive => remain = 126903
+
+# considering price and paint color
+price_paint_color <- ggplot(data = used_car_clean_new_drop_paint_color,aes(x= paint_color, y = price, color = paint_color)) + geom_boxplot()
+price_paint_color_add_1 <- price_paint_color +scale_color_manual( values = c( "black", "dodgerblue4","sienna4", "slateblue", "green4",
+                                                                              "gray76","orangered1", "darkorchid1", "indianred1",
+                                                                              "ivory2", "lavenderblush1",  "gold2","grey")) + theme_dark()
+price_paint_color_add_1
+
+# Summarize price by levels of a transmission variable
+by(used_car_clean_new_drop_paint_color$price, used_car_clean_new_drop_paint_color$paint_color, summary)
+
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
