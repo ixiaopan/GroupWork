@@ -55,13 +55,41 @@ def TF_IDF(df, number = 100):
     return(df)
 
 
-def clean_color(df, color_list=['white','black','silver']):
+def color_clean(df, color_list=['white','black','silver']):
 
-	#groups all the colors that are not in the list as "other"
-	#one hot encoding of paint_color column
+    #groups all the colors that are not in the list as "other"
+    #one hot encoding of paint_color column
     
     df["paint_color"]=df["paint_color"].apply(lambda x: x if x in color_list else "other")
     df=pd.get_dummies(df, prefix="color",columns=['paint_color'])
-    df.drop('color_other',axis=1,inplace=True)
+ 
+    return df
+
+
+
+ def drive_clean(df):
+    
+    #Assigns 4wd to all SUVs, pickups and offroads with nan drive type 
+    df.loc[(((df["type"]=="SUV") | 
+            (df["type"]=="pickup") | 
+            (df["type"]=="offroad")) & (df['drive'].isnull()==True)),"drive"] = "4wd"
+    
+    #assign "other" to all nan values
+    df.loc[(df['drive'].isnull()==True),"drive"]="other"
+
+    #one hot encoding 4wd, rwd, fwd, other
+    df = pd.get_dummies(df,prefix="drive",columns=['drive'])
+    
+    return df    
+
+
+
+def transmission_clean(df):
+    
+    #Groups nan values with "other" type of transmission
+    df.loc[(df['transmission'].isnull()==True),"transmission"]="other"
+    
+    #one hot encoding manual, automatic and other
+    df = pd.get_dummies(df,prefix="transmission",columns=['transmission'])
     
     return df
