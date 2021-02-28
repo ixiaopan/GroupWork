@@ -53,3 +53,15 @@ def TF_IDF(df, number = 100):
     tfidf = vector_spaces.toarray()
     df = pd.concat([df, pd.DataFrame(tfidf)], axis = 1)
     return(df)
+
+
+def clean_color(df, color_list=['white','black','silver']):
+
+	#groups all the colors that are not in the list as "other"
+	#one hot encoding of paint_color column
+    
+    df["paint_color"]=df["paint_color"].apply(lambda x: x if x in color_list else "other")
+    df=pd.get_dummies(df, prefix="color",columns=['paint_color'])
+    df.drop('color_other',axis=1,inplace=True)
+    
+    return df
