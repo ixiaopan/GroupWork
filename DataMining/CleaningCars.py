@@ -67,7 +67,7 @@ def color_clean(df, color_list=['white','black','silver']):
 
 
 
- def drive_clean(df):
+def drive_clean(df):
     
     #Assigns 4wd to all SUVs, pickups and offroads with nan drive type 
     df.loc[(((df["type"]=="SUV") | 
