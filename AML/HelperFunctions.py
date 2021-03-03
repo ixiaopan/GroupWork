@@ -13,7 +13,7 @@ import numpy as np
 import os
 import random
 
-def meltM5(df, days = 1941, items = 30490):
+def meltM5(df, days = 1200, items = 1000):
     """Function returns melted version of M5 sales data
 
     Parameters
@@ -32,7 +32,7 @@ def meltM5(df, days = 1941, items = 30490):
     """
     
     #Random sample of items items
-    df_melt = df.sample(n=items).copy().reset_index(drop=True)
+    df_melt = df.sample(n=items, random_state=30).copy().reset_index(drop=True)
     #Subset to include specified number of days
     df_melt = df_melt.iloc[:, :days+6]
     #Melt
