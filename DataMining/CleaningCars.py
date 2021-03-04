@@ -93,3 +93,24 @@ def transmission_clean(df):
     df = pd.get_dummies(df,prefix="transmission",columns=['transmission'])
     
     return df
+
+def fillLatLongNA(df):
+    #Fills all missing lat, long values with the median of their respective region
+    region_coords_ave_lat = df[['region','lat']].groupby(['region'])['lat'].median().to_dict()
+    region_coords_ave_long = df[['region','long']].groupby(['region'])['long'].median().to_dict()
+    df.loc[df['lat'].isnull(),'lat'] = df['region'].map(region_coords_ave_lat)
+    df.loc[df['long'].isnull(),'long'] = df['region'].map(region_coords_ave_long)
+    return df
+
+def fillLatLongOutliers(df):
+    latlong_outliers = (df.lat<20)  | (df.lat>70) | (df.long < -160) | (df.long > -60)
+    region_coords_ave_lat = df[['region','lat']].groupby(['region'])['lat'].median().to_dict()
+    region_coords_ave_long = df[['region','long']].groupby(['region'])['long'].median().to_dict()
+    df.loc[latlong_outliers,'lat'] = df['region'].map(region_coords_ave_lat)
+    df.loc[latlong_outliers,'long'] = df['region'].map(region_coords_ave_long)
+    return df
+
+def cleanLatLong(df):
+    df = cc.fillLatLongNA(df)
+    df = cc.fillLatLongOutliers(df)
+    return df
