@@ -111,8 +111,8 @@ def fillLatLongOutliers(df):
     return df
 
 def cleanLatLong(df):
-    df = cc.fillLatLongNA(df)
-    df = cc.fillLatLongOutliers(df)
+    df = fillLatLongNA(df)
+    df = fillLatLongOutliers(df)
     return df
 
 def cleanLocationFeatures(df):
