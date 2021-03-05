@@ -114,3 +114,12 @@ def cleanLatLong(df):
     df = cc.fillLatLongNA(df)
     df = cc.fillLatLongOutliers(df)
     return df
+
+def cleanLocationFeatures(df):
+    df = cleanLatLong(df)
+    #one hot encoding state
+    df = pd.get_dummies(df,prefix="state",columns=['state'])
+    #drop region
+    df.drop(['region'], axis=1, inplace=True)
+    
+    return df  
