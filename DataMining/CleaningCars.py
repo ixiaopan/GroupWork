@@ -7,6 +7,7 @@ Created on Fri Feb 19 10:38:46 2021
 """
 
 import pandas as pd
+import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 ### Data Cleaning Functions
@@ -34,6 +35,39 @@ def price_range(df, lower = 0, higher = 60_000, sampling = False):
     df = df.loc[df["price"] >= lower]
     
     return(df)
+
+def dateToDatetime(df):
+    df['posting_date'] = df['posting_date'].str[:10].astype('datetime64[ns]')
+    return df
+
+def basicImpute(df):
+    #Here, impute missing values with a common number/value
+    
+    ###Description: Impute missing values as empty string
+    ###posting_date: Not many so impute with mean posting date
+    mean_posting_date = np.mean(df.posting_date)
+
+    #Fill NA
+    df.fillna(value={'description': '', 'posting_date':mean_posting_date}, inplace=True)
+    
+    return df
+
+
+def imputeMissingByManufacturer(df, col):
+    ###Impute missing values by taking the most common occurence of the items manufacturer
+    #Use this for fuel and transmission. The remaining missing values have NaN manufacturer
+    
+    cars = df.copy()
+    cars_unique = np.unique(cars.manufacturer.astype(str))
+    man_dict = {}
+
+    for car in cars_unique:
+        if car != 'nan':
+            max_occur = cars[cars.manufacturer==car][col].value_counts().index[0]
+            man_dict[car] = max_occur
+
+    cars.loc[cars[col].isnull(),col] = cars['manufacturer'].map(man_dict)
+    return cars
 
 
 def TF_IDF(df, number = 100):
