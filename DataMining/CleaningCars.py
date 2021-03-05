@@ -85,6 +85,7 @@ def TF_IDF(df, number = 100):
     vectorizer.fit(sentences)
     vector_spaces = vectorizer.transform(sentences)
     tfidf = vector_spaces.toarray()
+    df.reset_index(drop=True, inplace=True)
     df = pd.concat([df, pd.DataFrame(tfidf)], axis = 1)
     return(df)
 
@@ -178,23 +179,32 @@ def groupStateByPrice(df, lower=10000, higher=15000):
     
     return cars
 
-
 def ultimateClean(df):
     #remove useless values
     df = remove_columns(df)
     df = price_range(df, lower = 50, higher = 60_000, sampling = False)
+    print("Cleaned !")
     
     #one hot encodings
     df = color_clean(df, color_list=['white','black','silver'])
     df = drive_clean(df)
     df = transmission_clean(df)
     df = cleanLocationFeatures(df)
+    print("One hot encodings done!")
     
     #impute some missing values
     
     
     #remove remaining missing values
-    
+    df = df.dropna()
+    print("Dropped NANs!")
 
     
+    return(df)
+
+
+def normalise(df):
+    cols_to_norm = ["year", "odometer", "lat", "long"]
+    df[cols_to_norm] = MinMaxScaler().fit_transform(df[cols_to_norm])
+    #FOR TRAIN TEST SPLIT USE SKLEARN train_test_split
     return(df)
