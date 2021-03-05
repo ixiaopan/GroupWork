@@ -123,3 +123,24 @@ def cleanLocationFeatures(df):
     df.drop(['region'], axis=1, inplace=True)
     
     return df  
+
+
+def ultimateClean(df):
+    #remove useless values
+    df = remove_columns(df)
+    df = price_range(df, lower = 50, higher = 60_000, sampling = False)
+    
+    #one hot encodings
+    df = color_clean(df, color_list=['white','black','silver'])
+    df = drive_clean(df)
+    df = transmission_clean(df)
+    df = cleanLocationFeatures(df)
+    
+    #impute some missing values
+    
+    
+    #remove remaining missing values
+    
+
+    
+    return(df)
