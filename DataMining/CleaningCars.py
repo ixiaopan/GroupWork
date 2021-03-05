@@ -124,6 +124,26 @@ def cleanLocationFeatures(df):
     
     return df  
 
+def groupStateByPrice(df, lower=10000, higher=15000):
+    ### Adds binary feature indicating if car was sold in cheap, medium or expensive state
+    
+    cars = df.copy()
+    #Find median price by state
+    bar = cars[['price','state']].groupby(['state'])['price'].median()
+    bar.sort_values(ascending=False, inplace=True)
+    
+    #Find expensive, mid price and cheap states according to thresholds
+    expensive_states = np.array(bar[bar >higher].index)
+    mediumprice_state = np.array(bar[(bar > lower) & (bar <= higher)].index)
+    cheap_state = np.array(bar[bar <= lower].index)
+    
+    #Add on hot encoded features to dataset
+    cars['state_expensive'] = cars.state.isin(expensive_states).astype(int)
+    cars['state_medium'] = cars.state.isin(mediumprice_state).astype(int)
+    cars['state_cheap'] = cars.state.isin(cheap_state).astype(int)
+    
+    return cars
+
 
 def ultimateClean(df):
     #remove useless values
