@@ -118,7 +118,6 @@ def drive_clean(df):
     return df    
 
 
-
 def transmission_clean(df):
     
     #Groups nan values with "other" type of transmission
@@ -128,6 +127,12 @@ def transmission_clean(df):
     df = pd.get_dummies(df,prefix="transmission",columns=['transmission'])
     
     return df
+
+
+def titlestatus_clean(df):
+    df = pd.get_dummies(df,prefix="status",columns=['title_status'])
+    return df
+
 
 def fillLatLongNA(df):
     #Fills all missing lat, long values with the median of their respective region
@@ -189,6 +194,7 @@ def ultimateClean(df):
     df = color_clean(df, color_list=['white','black','silver'])
     df = drive_clean(df)
     df = transmission_clean(df)
+    df = titlestatus_clean(df)
     df = cleanLocationFeatures(df)
     print("One hot encodings done!")
     
