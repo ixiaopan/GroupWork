@@ -214,6 +214,10 @@ def rollingMeanDemandFeature(data, windowSize, shift):
     data['rolling_mean_'+str(windowSize)+'_'+str(shift)] = data.groupby(['id'])['sold'].transform(lambda x: x.shift(shift).rolling(windowSize).mean())
     return data
 
+def rollingStdDemandFeature(data, windowSize, shift):
+    data['rolling_std_'+str(windowSize)+'_'+str(shift)] = data.groupby(['id'])['sold'].transform(lambda x: x.shift(shift).rolling(windowSize).std())
+    return data
+
 def rollingMeanWeekday(df, weeks, shift):
     
     """
@@ -237,6 +241,24 @@ def rollingMeanWeekday(df, weeks, shift):
 
 def lagFeature(df, var='sold', lag=1):
     df['sold_lag_'+str(lag)] = df.groupby(['id'])[var].shift(lag)
+    return df
+
+def priceDifference(df):
+    #Real value of the price change
+    df['price_diff'] = df.groupby(['id'])['sell_price'].transform(lambda x: x.diff()) 
+    df['price_diff'].fillna(0, inplace=True)
+    #Binary variable indicating whether price increase/decreased that day
+    df['price_increase'] = (df['price_diff'] > 0).astype(int)
+    df['price_decrease'] = (df['price_diff'] < 0).astype(int)
+    return df
+
+def rollingPriceDifference(df, windowsize):
+    #Has there been a price increase/decrease in the past windowsize days?
+    #Can only be used if price_increase and price_decrease features are available as given in priceDifference(df)
+    df['price_increase_'+str(windowsize)] = df.groupby(['id'])['price_increase'].transform(lambda x: x.rolling(windowsize).sum())
+    df['price_increase_'+str(windowsize)] = (df['price_increase_'+str(windowsize)] > 0.5).astype(int)
+    df['price_decrease_'+str(windowsize)] = df.groupby(['id'])['price_decrease'].transform(lambda x: x.rolling(windowsize).sum())
+    df['price_decrease_'+str(windowsize)] = (df['price_decrease_'+str(windowsize)] > 0.5).astype(int)
     return df
 
 def rawToClean(sales_df, calendar_df, price_df, days=300, items=100, dropNAPrices=True):
