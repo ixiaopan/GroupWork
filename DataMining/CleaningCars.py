@@ -90,6 +90,102 @@ def TF_IDF(df, number = 100):
     return(df)
 
 
+def manuf_country(cars):
+    
+    # Manufacturer country assigned
+    
+    cars.loc[ cars["manufacturer"] == "ford", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "chevrolet", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "toyota", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "honda", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "nissan", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "jeep", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "ram", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "gmc", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "dodge", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "bmw", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "hyundai", "manuf_country"] = "S.Korea"
+    cars.loc[ cars["manufacturer"] == "mercedes-benz", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "subaru", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "volkswagen", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "kia", "manuf_country"] = "S.Korea"
+    cars.loc[ cars["manufacturer"] == "chrysler", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "lexus", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "cadillac", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "buick", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "mazda", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "audi", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "acura", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "infiniti", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "lincoln", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "pontiac", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "volvo", "manuf_country"] = "Sweden"
+    cars.loc[ cars["manufacturer"] == "mini", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "mitsubishi", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "porsche", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "rover", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "mercury", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "saturn", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "tesla", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "jaguar", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "fiat", "manuf_country"] = "Italy"
+    cars.loc[ cars["manufacturer"] == "alfa-romeo", "manuf_country"] = "Italy"
+    cars.loc[ cars["manufacturer"] == "harley-davidson", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "ferrari", "manuf_country"] = "Italy"
+    cars.loc[ cars["manufacturer"] == "datsun", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "aston-martin", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "land-rover", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "morgan", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "hennessey", "manuf_country"] = "USA"
+    
+    # One hot encoding to one of USA, Japan, Germany, S.Korea, UK, Sweden, Italy
+    
+    cars = pd.get_dummies( cars, columns = ["manuf_country"])
+    
+    return cars
+
+
+def ohe_type(cars):
+    
+    # Some condition groupings
+    
+    cars.loc[ cars["type"] == "mini-van", "type"] = "van/mini-van"
+    cars.loc[ cars["type"] == "van", "type"] = "van/mini-van"
+    cars.loc[ cars["type"] == "truck", "type"] = "pickup_truck"
+    cars.loc[ cars["type"] == "pickup", "type"] = "pickup_truck"
+    
+    # One hot encoding type (original values)
+    
+    cars = pd.get_dummies( cars, columns = ["type"])
+    
+    return cars
+
+
+def ohe_condition(cars):
+    
+    # One hot encoding condition (original values)
+    
+    cars = pd.get_dummies( cars, columns = ["condition"])
+    
+    return cars
+
+
+def ohe_cylinders(cars):
+    
+    # One hot encoding cylinders (original values)
+    
+    cars = pd.get_dummies( cars, columns = ["cylinders"])
+    
+    return cars
+
+
+def ohe_fuel(cars):
+
+    # One hot encoding fuel (original values)
+    
+    cars = pd.get_dummies( cars, columns = ["fuel"])
+
+
 def color_clean(df, color_list=['white','black','silver']):
 
     #groups all the colors that are not in the list as "other"
@@ -196,6 +292,13 @@ def ultimateClean(df):
     df = transmission_clean(df)
     df = titlestatus_clean(df)
     df = cleanLocationFeatures(df)
+    
+    df = manuf_country(df)
+    df = ohe_condition(df)
+    df = ohe_type(df)
+    df = ohe_cylinders(df)
+    df = ohe_fuel(df)
+    
     print("One hot encodings done!")
     
     #impute some missing values
