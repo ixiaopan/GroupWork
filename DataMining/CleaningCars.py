@@ -190,6 +190,12 @@ def ultimateClean(df):
     df = price_range(df, lower = 50, higher = 60_000, sampling = False)
     print("Cleaned !")
     
+    #impute some missing values
+    df = cc.dateToDatetime(df)
+    df = cc.basicImpute(df)
+    df = cc.imputeMissingByManufacturer(df, col='fuel')
+    df = cc.imputeMissingByManufacturer(df, col='transmission')
+    
     #one hot encodings
     df = color_clean(df, color_list=['white','black','silver'])
     df = drive_clean(df)
@@ -198,15 +204,13 @@ def ultimateClean(df):
     df = cleanLocationFeatures(df)
     print("One hot encodings done!")
     
-    #impute some missing values
-    
     
     #remove remaining missing values
     df = df.dropna()
     print("Dropped NANs!")
 
     
-    return(df)
+    return df
 
 
 def normalise(df):
