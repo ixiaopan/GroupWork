@@ -158,13 +158,10 @@ def TF_IDF(df, number = 100):
 
 
 def color_clean(df, color_list=['white','black','silver']):
-
     #groups all the colors that are not in the list as "other"
-    #one hot encoding of paint_color column
-    
+    #one hot encoding of paint_color column   
     df["paint_color"]=df["paint_color"].apply(lambda x: x if x in color_list else "other")
     df=pd.get_dummies(df, prefix="color",columns=['paint_color'])
- 
     return df
 
 
@@ -176,34 +173,42 @@ def cylinder_clean(df):
 
 
 def drive_clean(df):
-    
     #Assigns 4wd to all SUVs, pickups and offroads with nan drive type 
     df.loc[(((df["type"]=="SUV") | 
             (df["type"]=="pickup") | 
             (df["type"]=="offroad")) & (df['drive'].isnull()==True)),"drive"] = "4wd"
-    
     #assign "other" to all nan values
     df.loc[(df['drive'].isnull()==True),"drive"]="other"
-
     #one hot encoding 4wd, rwd, fwd, other
     df = pd.get_dummies(df,prefix="drive",columns=['drive'])
-    
     return df    
 
 
 def transmission_clean(df):
-    
     #Groups nan values with "other" type of transmission
-    df.loc[(df['transmission'].isnull()==True),"transmission"]="other"
-    
+    df.loc[(df['transmission'].isnull()==True),"transmission"]="automatic"
     #one hot encoding manual, automatic and other
     df = pd.get_dummies(df,prefix="transmission",columns=['transmission'])
-    
     return df
 
 
 def titlestatus_clean(df):
     df = pd.get_dummies(df,prefix="status",columns=['title_status'])
+    return df
+
+
+def condition_clean(df):
+    # nan values to good because average price of nan is close to averag price of good/excellent...
+    df.loc[(df['condition'].isnull()==True),"condition"]="good" 
+    # good condition -->1    bad condition--->0
+    df['condition']=df['condition'].apply(lambda x: 1 if x in ['excellent','good','like new','new'] else 0)
+    return df
+
+def fuel_clean(df):
+    #group nan values to gas fuel type
+    df.loc[(df['fuel'].isnull()==True),"fuel"]="gas"
+    #one hot encoding
+    df = pd.get_dummies(df,prefix="fuel",columns=['fuel'])
     return df
 
 
@@ -280,6 +285,8 @@ def ultimateClean(df):
     df = titlestatus_clean(df)
     df = cleanLocationFeatures(df)
     df = cylinder_clean(df)
+    df = condition_clean(df)
+    df = fuel_clean(df)
     print("One hot encodings done!")
     
     
