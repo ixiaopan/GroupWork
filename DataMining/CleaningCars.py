@@ -17,7 +17,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 def remove_columns(df):
     
     """Removes columns we agreed were useless"""
-    columns = ["Unnamed: 0", "id", "image_url", "VIN", "region_url", "id", "model", "size","url"]
+    columns = ["Unnamed: 0", "id", "image_url", "VIN", "region_url", "id", "size","url"]
     df.drop(columns, axis=1, inplace=True)
     return(df)
 
@@ -68,6 +68,73 @@ def imputeMissingByManufacturer(df, col):
 
     cars.loc[cars[col].isnull(),col] = cars['manufacturer'].map(man_dict)
     return cars
+
+def imputeManufacturer(cars):
+    for item in ['Isuzu','chevrolet',"Willys","Hino","suzuki",'isuzu']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = item
+    for item in ['Mustang',"F-150","mustang","f-150","MUSTANG","FORD","ford","Ford","Focus","focus","F-550","f-550","F550","F-350","f-350","F350","expedition el xlt sport","transit"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "ford"
+    for item in ['freightliner cascadia 113','freightliner cascadia','freightliner m2 effer','Freightliner M2 112 15','Freightliner','FREIGHTLINER']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "Daimler Trucks North America"
+    for item in ['International 4300']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "International DuraStar, America"
+    for item in ['Hummer H3',"Hummer H2 SUT","Terrain SLE","HUMMER H2","HUMMER H3","oldsmobile toronado","oldsmobile alero",'h2 hummer']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "General Motors"
+    for item in ["MG Midget","mg midget","MG MIDGET","MG"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "MG"
+    for item in ["cooper","COOPER","Cooper"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "mini"
+    for item in ['Scion FR-S',"scion fr-s","SUBARU","subaru","Subaru","forester"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "subaru"
+    for item in ['cr-v',"CR-V","crv","CRV","HR-V","hr-v","hrv","HRV","Honda","honda","HONDA","Accord","accord","odyssey","Odyssey","Civic","civic"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "honda"
+    for item in ['Maserati',"maserati","MASERATI"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "maserati"
+    for item in ['hyundia',"Hyundai","hyundai","HYUNDAI","hyindai",'hyndai',"Hundai","Tucson","tucson","Genesis G80",'genesis G80']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "hyundai"
+    for item in ['Mazda',"MAZDA","mazda","cx-5","cx-7","CX-5","CX-7"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "mazda"
+    for item in ['Isuzu',"ISUZU","isuzu"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "isuzu"
+    for item in ['Suzuki',"SUZUKI","suzuki"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "suzuki"
+    for item in ['CHRVROLET',"Cheverolet","cheverolet", "cheverolet","chevrolet","Chevrolet","equinox","Cherolet","silverado 1500","tahoe lt","city express",'olet Spark']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "chevrolet"
+    for item in ['SCION XB',"scion tc","Scion TC","Scion tc",'Scion XD Hatchback','scion XD Hatchback','scion','Scion',"TOYOTA","toyota","Toyota","yaris","Yaris","YARIS","camry","Camry","CAMRY","corolla",'Corolla',"Civic","civic"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "toyota"
+    for item in ['Hudson','hudson']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "hudson motor car"
+    for item in ['BMW',"bmw"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "bmw"   
+    for item in ['e-class e 350','BENZ','benz','Benz']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "mercedes-benz"    
+    for item in ['International Durastar Terex','Terrex','terrex']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "terrex"      
+    for item in ['freightliner century']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "freightliner truck"
+    for item in ['international 4300']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "international harvester company"
+    for item in ['patriot','grand cherokee']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "jeep"
+    for item in ['leaf sv hatchback 4d','maxima','frontier','note','Note']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "nissan"
+    for item in ['Bentley Continental',"bentley continental"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "bentley motors"
+    for item in ['KAWASAKI',"kawasaki"]:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "kawasaki"
+    for item in ['wagen Atlas','wagen Passat']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "volkswagen"
+    for item in ['73cj5','fuso fe160']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "mitsubishi"
+    for item in ['LAMBORGHINI','lamborghini','Lamborghini','GALLARDO','gallardo']:
+        cars.loc[cars["model"].str.contains(item) ==True, 'manufacturer'] = "lamborghini"  
+    return cars
+
+def imputeOdometerByYear(df):
+    #Imputes missing values of odometer with mean odometer for the year the car was made
+    odo_dict = df.groupby("year", as_index=True)['odometer'].mean().fillna(np.mean(df.odometer)).to_dict()
+    df['odometer'] = df.odometer.fillna(df.year.map(odo_dict))
+    return df
 
 
 def TF_IDF(df, number = 100):
@@ -191,10 +258,12 @@ def ultimateClean(df):
     print("Cleaned !")
     
     #impute some missing values
-    df = cc.dateToDatetime(df)
-    df = cc.basicImpute(df)
-    df = cc.imputeMissingByManufacturer(df, col='fuel')
-    df = cc.imputeMissingByManufacturer(df, col='transmission')
+    df = imputeManufacturer(df)
+    df = dateToDatetime(df)
+    df = basicImpute(df)
+    df = imputeMissingByManufacturer(df, col='fuel')
+    df = imputeMissingByManufacturer(df, col='transmission')
+    df = imputeOdometerByYear(df)
     
     #one hot encodings
     df = color_clean(df, color_list=['white','black','silver'])
@@ -206,6 +275,7 @@ def ultimateClean(df):
     
     
     #remove remaining missing values
+    df.drop(['model'], axis=1, inplace=True)
     df = df.dropna()
     print("Dropped NANs!")
 
