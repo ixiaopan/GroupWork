@@ -168,6 +168,12 @@ def color_clean(df, color_list=['white','black','silver']):
     return df
 
 
+def cylinder_clean(df):
+    df["cylinders"] = df["cylinders"].fillna("missing")
+    df = pd.get_dummies(df, columns = ["cylinders"]).drop(\
+        ["cylinders_12 cylinders", "cylinders_10 cylinders", "cylinders_3 cylinders", "cylinders_5 cylinders", "cylinders_other"], axis = 1)
+    return(df)
+
 
 def drive_clean(df):
     
@@ -254,7 +260,9 @@ def groupStateByPrice(df, lower=10000, higher=15000):
 def ultimateClean(df):
     #remove useless values
     df = remove_columns(df)
-    df = price_range(df, lower = 50, higher = 60_000, sampling = False)
+    
+    # REMOVE IQR OUTLIERS
+    #df = price_range(df, lower = 50, higher = 60_000, sampling = False)
     print("Cleaned !")
     
     #impute some missing values
@@ -271,11 +279,17 @@ def ultimateClean(df):
     df = transmission_clean(df)
     df = titlestatus_clean(df)
     df = cleanLocationFeatures(df)
+    df = cylinder_clean(df)
     print("One hot encodings done!")
     
     
+    
     #remove remaining missing values
-    df.drop(['model'], axis=1, inplace=True)
+    df.drop(['model', "posting_date"], axis=1, inplace=True)
+    
+    df = df[df['year'].notna()]
+    
+    
     df = df.dropna()
     print("Dropped NANs!")
 
