@@ -262,14 +262,31 @@ def groupStateByPrice(df, lower=10000, higher=15000):
     
     return cars
 
+def cutIQR(cleaned_df, col):
+    print('Remove outliers...')
+
+    Q1 = cleaned_df[col].quantile(0.25)
+    Q3 = cleaned_df[col].quantile(0.75)
+    IQR = Q3 - Q1
+
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    
+    cutted_df = cleaned_df[(cleaned_df[col] >= lower) & (cleaned_df[col] <= upper)]
+
+    return cutted_df, upper
+
+
 def ultimateClean(df):
     #remove useless values
     df = remove_columns(df)
     
     # REMOVE IQR OUTLIERS
     #df = price_range(df, lower = 50, higher = 60_000, sampling = False)
-    print("Cleaned !")
-    
+    df, _ = cutIQR(df, 'odometer')
+    df, _ = cutIQR(df, 'price')
+    print("Cleaned outliers !")
+
     #impute some missing values
     df = imputeManufacturer(df)
     df = dateToDatetime(df)
