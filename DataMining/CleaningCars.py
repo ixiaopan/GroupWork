@@ -8,7 +8,9 @@ Created on Fri Feb 19 10:38:46 2021
 
 import pandas as pd
 import numpy as np
+from joblib import dump, load
 from sklearn.feature_extraction.text import TfidfVectorizer
+import time
 
 ### Data Cleaning Functions
 
@@ -137,7 +139,7 @@ def imputeOdometerByYear(df):
     return df
 
 
-def TF_IDF(df, number = 100):
+def TF_IDF(df, number = 1000):
     
     """This function adds the TF-IDF values of the most important words to the dataframe,
     the number can be chosen above"""
@@ -152,8 +154,13 @@ def TF_IDF(df, number = 100):
     vectorizer.fit(sentences)
     vector_spaces = vectorizer.transform(sentences)
     tfidf = vector_spaces.toarray()
+    
+    clf = load('kmeans.joblib') 
+    df["tfidf"] = clf.predict(tfidf)
+    df = pd.get_dummies(df, prefix="tfidf",columns=['tfidf'])
+    
     df.reset_index(drop=True, inplace=True)
-    df = pd.concat([df, pd.DataFrame(tfidf)], axis = 1)
+    #df = pd.concat([df, pd.DataFrame(tfidf)], axis = 1)
     return(df)
 
 
@@ -277,7 +284,101 @@ def cutIQR(cleaned_df, col):
     return cutted_df, upper
 
 
+def ohe_manuf_country(cars):
+    
+    # Manufacturer country assigned
+    
+    cars.loc[ cars["manufacturer"] == "ford", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "chevrolet", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "toyota", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "honda", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "nissan", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "jeep", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "ram", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "gmc", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "dodge", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "bmw", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "hyundai", "manuf_country"] = "S.Korea"
+    cars.loc[ cars["manufacturer"] == "mercedes-benz", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "subaru", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "volkswagen", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "kia", "manuf_country"] = "S.Korea"
+    cars.loc[ cars["manufacturer"] == "chrysler", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "lexus", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "cadillac", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "buick", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "mazda", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "audi", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "acura", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "infiniti", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "lincoln", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "pontiac", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "volvo", "manuf_country"] = "Sweden"
+    cars.loc[ cars["manufacturer"] == "mini", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "mitsubishi", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "porsche", "manuf_country"] = "Germany"
+    cars.loc[ cars["manufacturer"] == "rover", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "mercury", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "saturn", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "tesla", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "jaguar", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "fiat", "manuf_country"] = "Italy"
+    cars.loc[ cars["manufacturer"] == "alfa-romeo", "manuf_country"] = "Italy"
+    cars.loc[ cars["manufacturer"] == "harley-davidson", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"] == "ferrari", "manuf_country"] = "Italy"
+    cars.loc[ cars["manufacturer"] == "datsun", "manuf_country"] = "Japan"
+    cars.loc[ cars["manufacturer"] == "aston-martin", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "land-rover", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "morgan", "manuf_country"] = "UK"
+    cars.loc[ cars["manufacturer"] == "hennessey", "manuf_country"] = "USA"
+    cars.loc[ cars["manufacturer"].isnull(), "manuf_country"] = "missing"
+    
+    # One hot encoding to one of USA, Japan, Germany, S.Korea, UK, Sweden, Italy and missing
+    
+    cars = pd.get_dummies( cars, columns = ["manuf_country"])
+    
+    # Manufacturer needs to be dropped
+    # There are some imputed manufacturers that are not in this section.
+    # These need to be considered as well.
+    
+    return cars
+
+def ohe_type(cars):
+    
+    # Some condition groupings
+    
+    cars.loc[ cars["type"] == "sedan", "usage_type"] = "daily" 
+    cars.loc[ cars["type"] == "SUV", "usage_type"] = "daily"
+    cars.loc[ cars["type"] == "pickup", "usage_type"] = "professional"
+    cars.loc[ cars["type"] == "truck", "usage_type"] = "professional"
+    cars.loc[ cars["type"] == "other", "usage_type"] = "other"
+    cars.loc[ cars["type"] == "coupe", "usage_type"] = "daily"
+    cars.loc[ cars["type"] == "hatchback", "usage_type"] = "daily"
+    cars.loc[ cars["type"] == "wagon", "usage_type"] = "daily"
+    cars.loc[ cars["type"] == "van", "usage_type"] = "professional"
+    cars.loc[ cars["type"] == "convertible", "usage_type"] = "daily"
+    cars.loc[ cars["type"] == "mini-van", "usage_type"] = "professional"
+    cars.loc[ cars["type"] == "bus", "usage_type"] = "professional"
+    cars.loc[ cars["type"] == "offroad", "usage_type"] = "other"
+    #---------------------------------------
+    # Assumption
+    
+    cars.loc[ (cars["type"].isnull()) & (cars["fuel"] == "gas") , "usage_type"] = "daily"
+    #---------------------------------------
+    cars.loc[ cars["type"].isnull() , "usage_type"] = "missing"
+    
+    # One hot encoding type (original values)
+    
+    cars = pd.get_dummies( cars, columns = ["usage_type"])
+    
+    # Type needs to be dropped
+    # Too many values are missing. Don't think we can impute.
+    # Maybe we can use the most correlated feature to impute.
+    
+    return cars
+
 def ultimateClean(df):
+    start = time.time()
     #remove useless values
     df = remove_columns(df)
     
@@ -294,6 +395,7 @@ def ultimateClean(df):
     df = imputeMissingByManufacturer(df, col='fuel')
     df = imputeMissingByManufacturer(df, col='transmission')
     df = imputeOdometerByYear(df)
+    print("Imputed Missing Values")
     
     #one hot encodings
     df = color_clean(df, color_list=['white','black','silver'])
@@ -304,18 +406,22 @@ def ultimateClean(df):
     df = cylinder_clean(df)
     df = condition_clean(df)
     df = fuel_clean(df)
+#     df = ohe_type(df)
+#     df = ohe_manuf_country(df)
+    df = TF_IDF(df, number = 1000)
+    
     print("One hot encodings done!")
     
     
     
     #remove remaining missing values
-    df.drop(['model', "posting_date"], axis=1, inplace=True)
+    df.drop(['model', "posting_date", "manufacturer", "type", "description"], axis=1, inplace=True)
     
     df = df[df['year'].notna()]
     
     
     df = df.dropna()
-    print("Dropped NANs!")
+    print("Total Time: ", (time.time() - start)/60, " minutes")
 
     
     return df
