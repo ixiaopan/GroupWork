@@ -363,7 +363,7 @@ def ohe_type(cars):
     #---------------------------------------
     # Assumption
     
-    cars.loc[ (cars["type"].isnull()) & (cars["fuel"] == "gas") , "usage_type"] = "daily"
+    #cars.loc[ (cars["type"].isnull()) & (cars["fuel"] == "gas") , "usage_type"] = "daily"
     #---------------------------------------
     cars.loc[ cars["type"].isnull() , "usage_type"] = "missing"
     
@@ -406,8 +406,8 @@ def ultimateClean(df):
     df = cylinder_clean(df)
     df = condition_clean(df)
     df = fuel_clean(df)
-#     df = ohe_type(df)
-#     df = ohe_manuf_country(df)
+    df = ohe_type(df)
+    df = ohe_manuf_country(df)
     df = TF_IDF(df, number = 1000)
     
     print("One hot encodings done!")
