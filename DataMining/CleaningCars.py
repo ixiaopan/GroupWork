@@ -383,7 +383,7 @@ def ultimateClean(df):
     df = remove_columns(df)
     
     # REMOVE IQR OUTLIERS
-    #df = price_range(df, lower = 50, higher = 60_000, sampling = False)
+#     df = price_range(df, lower = 50, higher = 60_000, sampling = False)
     df, _ = cutIQR(df, 'odometer')
     df, _ = cutIQR(df, 'price')
     print("Cleaned outliers !")
