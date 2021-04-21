@@ -5,3 +5,5 @@ GTSRB/
 *.h5
 *.npy
 data/
+data1/
+__pycache__/
